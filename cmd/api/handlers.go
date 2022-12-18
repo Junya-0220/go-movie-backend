@@ -8,7 +8,6 @@ import (
 	"time"
 )
 
-
 func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 	var payload = struct {
 		Status string `json:"status"`
@@ -35,26 +34,27 @@ func (app *application) AllMovies(w http.ResponseWriter, r *http.Request) {
 
 	rd, _ := time.Parse("2006-01-02", "1986-03-07")
 
-	highlander := models.Movie{
+	highlander := models.Movie {
 		ID: 1,
-		Title: "Hightlander",
+		Title: "Highlander",
 		ReleaseDate: rd,
 		MPAARating: "R",
-		Runtime: 116,
+		RunTime: 116,
 		Description: "A very nice movie",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
 
 	movies = append(movies, highlander)
+
 	rd, _ = time.Parse("2006-01-02", "1981-06-12")
 
-	rotla := models.Movie{
+	rotla := models.Movie {
 		ID: 2,
 		Title: "Raiders of the Lost Ark",
 		ReleaseDate: rd,
 		MPAARating: "PG-13",
-		Runtime: 115,
+		RunTime: 115,
 		Description: "Another very nice movie",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
