@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"log"
 	"net/http"
 )
 
@@ -51,15 +50,17 @@ func (app *application) authenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	// passwordをチェック
+	valid, err := user.PasswordMatches(requestPayload.Password)
+	if err != nil || !valid{
+		app.errorJSON(w, errors.New("invalid credential"),http.StatusBadRequest)
+	}
 
 	// jwtuserを作成
-
 	u := jwtUser{
-		ID: 1,
-		FirstName: "Admin",
-		LastName: "User",
+		ID: user.ID,
+		FirstName: user.FirstName,
+		LastName: user.LastName,
 	}
 
 	// tokenを作成
@@ -68,8 +69,8 @@ func (app *application) authenticate(w http.ResponseWriter, r *http.Request) {
 		app.errorJSON(w,err)
 		return 
 	}
-	log.Println(tokens.Token)
 	refreshCookie := app.auth.GetRefreshCookie(tokens.RefreshToken)
 	http.SetCookie(w, refreshCookie)
-	w.Write([]byte(tokens.Token))
+
+	app.writeJSON(w, http.StatusAccepted, tokens)
 }
