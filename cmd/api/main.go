@@ -1,8 +1,8 @@
 package main
 
 import (
-	"backend/internal/models/repository"
-	"backend/internal/models/repository/dbrepo"
+	"backend/internal/repository"
+	"backend/internal/repository/dbrepo"
 	"flag"
 	"fmt"
 	"log"

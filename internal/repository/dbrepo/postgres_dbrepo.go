@@ -22,18 +22,19 @@ func (m *PostgresDBRepo) AllMovies() ([]*models.Movie, error) {
 	defer cancel()
 
 	query := `
-	select
-		id, title, release_date, runtime,
-		mpaa_rating, description, coalesce(image, ''),
-		created_at, updated_at
-	from
-		movies
-	order by
-		title
+		select
+			id, title, release_date, runtime,
+			mpaa_rating, description, coalesce(image, ''),
+			created_at, updated_at
+		from
+			movies
+		order by
+			title
 	`
+
 	rows, err := m.DB.QueryContext(ctx, query)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -53,12 +54,13 @@ func (m *PostgresDBRepo) AllMovies() ([]*models.Movie, error) {
 			&movie.UpdatedAt,
 		)
 		if err != nil {
-			return nil,err
+			return nil, err
 		}
+
 		movies = append(movies, &movie)
 	}
 
-	return movies,nil
+	return movies, nil
 }
 
 func (m *PostgresDBRepo) GetUserByEmail(email string) (*models.User, error) {
@@ -67,6 +69,7 @@ func (m *PostgresDBRepo) GetUserByEmail(email string) (*models.User, error) {
 
 	query := `select id, email, first_name, last_name, password,
 			created_at, updated_at from users where email = $1`
+
 	var user models.User
 	row := m.DB.QueryRowContext(ctx, query, email)
 
@@ -83,5 +86,6 @@ func (m *PostgresDBRepo) GetUserByEmail(email string) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &user, nil
 }
