@@ -13,18 +13,15 @@ import (
 const port = 8080
 
 type application struct {
-	DSN string
-	Domain string
-	DB repository.DatabaseRepo
+	DSN          string
+	Domain       string
+	DB           repository.DatabaseRepo
 	auth         Auth
 	JWTSecret    string
 	JWTIssuer    string
 	JWTAudience  string
 	CookieDomain string
-
 }
-
-
 
 func main() {
 	// set application config
@@ -38,6 +35,7 @@ func main() {
 	flag.StringVar(&app.CookieDomain, "cookie-domain", "localhost", "cookie domain")
 	flag.StringVar(&app.Domain, "domain", "example.com", "domain")
 	flag.Parse()
+
 	// connect to the database
 	conn, err := app.connectToDB()
 	if err != nil {
@@ -57,9 +55,7 @@ func main() {
 		CookieDomain: app.CookieDomain,
 	}
 
-
 	log.Println("Starting application on port", port)
-
 
 	// start a web server
 	err = http.ListenAndServe(fmt.Sprintf(":%d", port), app.routes())

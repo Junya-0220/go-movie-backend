@@ -7,11 +7,11 @@ import (
 
 func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 	var payload = struct {
-		Status string `json:"status"`
+		Status  string `json:"status"`
 		Message string `json:"message"`
 		Version string `json:"version"`
 	}{
-		Status: "active",
+		Status:  "active",
 		Message: "Go Movies up and running",
 		Version: "1.0.0",
 	}
@@ -22,18 +22,17 @@ func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 func (app *application) AllMovies(w http.ResponseWriter, r *http.Request) {
 	movies, err := app.DB.AllMovies()
 	if err != nil {
-		app.errorJSON(w,err)
+		app.errorJSON(w, err)
 		return
 	}
 
 	_ = app.writeJSON(w, http.StatusOK, movies)
-
 }
 
 func (app *application) authenticate(w http.ResponseWriter, r *http.Request) {
-	// jsonpayloadを読み込む
+	// read json payload
 	var requestPayload struct {
-		Email string `json:"email"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 
@@ -43,32 +42,34 @@ func (app *application) authenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// userをvalidate
+	// validate user against database
 	user, err := app.DB.GetUserByEmail(requestPayload.Email)
 	if err != nil {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
 		return
 	}
 
-	// passwordをチェック
+	// check password
 	valid, err := user.PasswordMatches(requestPayload.Password)
-	if err != nil || !valid{
-		app.errorJSON(w, errors.New("invalid credential"),http.StatusBadRequest)
+	if err != nil || !valid {
+		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
 	}
 
-	// jwtuserを作成
+	// create a jwt user
 	u := jwtUser{
-		ID: user.ID,
+		ID:        user.ID,
 		FirstName: user.FirstName,
-		LastName: user.LastName,
+		LastName:  user.LastName,
 	}
 
-	// tokenを作成
+	// generate tokens
 	tokens, err := app.auth.GenerateTokenPair(&u)
 	if err != nil {
-		app.errorJSON(w,err)
-		return 
+		app.errorJSON(w, err)
+		return
 	}
+
 	refreshCookie := app.auth.GetRefreshCookie(tokens.RefreshToken)
 	http.SetCookie(w, refreshCookie)
 
