@@ -84,23 +84,26 @@ func (app *application) refreshToken(w http.ResponseWriter, r *http.Request) {
 		if cookie.Name == app.auth.CookieName {
 			claims := &Claims{}
 			refreshToken := cookie.Value
-			// トークンをパースしてclaimsをget
+
+			// parse the token to get the claims
 			_, err := jwt.ParseWithClaims(refreshToken, claims, func(token *jwt.Token) (interface{}, error) {
 				return []byte(app.JWTSecret), nil
 			})
 			if err != nil {
-				app.errorJSON(w, errors.New("認証なし"), http.StatusUnauthorized)
+				app.errorJSON(w, errors.New("unauthorized"), http.StatusUnauthorized)
 				return
 			}
-			// claimsからuseridをget
+
+			// get the user id from the token claims
 			userID, err := strconv.Atoi(claims.Subject)
 			if err != nil {
-				app.errorJSON(w, errors.New("知らないユーザーです"), http.StatusUnauthorized)
+				app.errorJSON(w, errors.New("unknown user"), http.StatusUnauthorized)
 				return
 			}
+
 			user, err := app.DB.GetUserByID(userID)
 			if err != nil {
-				app.errorJSON(w, errors.New("知らないユーザーです"), http.StatusUnauthorized)
+				app.errorJSON(w, errors.New("unknown user"), http.StatusUnauthorized)
 				return
 			}
 
@@ -119,8 +122,6 @@ func (app *application) refreshToken(w http.ResponseWriter, r *http.Request) {
 			http.SetCookie(w, app.auth.GetRefreshCookie(tokenPairs.RefreshToken))
 
 			app.writeJSON(w, http.StatusOK, tokenPairs)
-
-
 
 		}
 	}
