@@ -71,7 +71,7 @@ func (m *PostgresDBRepo) OneMovie(id int) (*models.Movie, error) {
 		description, coalesce(image, ''), created_at, updated_at
 		from movies where id = $1`
 
-	row := m.DB.QueryRowContext(ctx,query,id)
+	row := m.DB.QueryRowContext(ctx, query, id)
 
 	var movie models.Movie
 
@@ -94,11 +94,10 @@ func (m *PostgresDBRepo) OneMovie(id int) (*models.Movie, error) {
 	// get genres, if any
 	query = `select g.id, g.genre from movies_genres mg
 		left join genres g on (mg.genre_id = g.id)
-		where mg.movie_id $1
+		where mg.movie_id = $1
 		order by g.genre`
 
 	rows, err := m.DB.QueryContext(ctx, query, id)
-
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}
@@ -117,9 +116,10 @@ func (m *PostgresDBRepo) OneMovie(id int) (*models.Movie, error) {
 
 		genres = append(genres, &g)
 	}
-	movie.Genres = genres
-	return &movie, err
 
+	movie.Genres = genres
+
+	return &movie, err
 }
 
 func (m *PostgresDBRepo) OneMovieForEdit(id int) (*models.Movie, []*models.Genre, error) {
@@ -130,7 +130,7 @@ func (m *PostgresDBRepo) OneMovieForEdit(id int) (*models.Movie, []*models.Genre
 		description, coalesce(image, ''), created_at, updated_at
 		from movies where id = $1`
 
-	row := m.DB.QueryRowContext(ctx,query,id)
+	row := m.DB.QueryRowContext(ctx, query, id)
 
 	var movie models.Movie
 
@@ -153,11 +153,10 @@ func (m *PostgresDBRepo) OneMovieForEdit(id int) (*models.Movie, []*models.Genre
 	// get genres, if any
 	query = `select g.id, g.genre from movies_genres mg
 		left join genres g on (mg.genre_id = g.id)
-		where mg.movie_id $1
+		where mg.movie_id = $1
 		order by g.genre`
 
 	rows, err := m.DB.QueryContext(ctx, query, id)
-
 	if err != nil && err != sql.ErrNoRows {
 		return nil, nil, err
 	}
@@ -178,21 +177,21 @@ func (m *PostgresDBRepo) OneMovieForEdit(id int) (*models.Movie, []*models.Genre
 
 		genres = append(genres, &g)
 		genresArray = append(genresArray, g.ID)
-
 	}
+
 	movie.Genres = genres
 	movie.GenresArray = genresArray
 
 	var allGenres []*models.Genre
 
-	query = "select id, genre, from genres order by genre"
+	query = "select id, genre from genres order by genre"
 	gRows, err := m.DB.QueryContext(ctx, query)
 	if err != nil {
 		return nil, nil, err
 	}
 	defer gRows.Close()
 
-	for gRows.Next(){
+	for gRows.Next() {
 		var g models.Genre
 		err := gRows.Scan(
 			&g.ID,
@@ -205,8 +204,8 @@ func (m *PostgresDBRepo) OneMovieForEdit(id int) (*models.Movie, []*models.Genre
 		allGenres = append(allGenres, &g)
 	}
 
-	return &movie, allGenres, err
 
+	return &movie, allGenres, err
 }
 
 func (m *PostgresDBRepo) GetUserByEmail(email string) (*models.User, error) {
